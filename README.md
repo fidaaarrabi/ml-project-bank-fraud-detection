@@ -1,6 +1,6 @@
 # Bank Account Fraud Detection
 
-**Machine Learning Lab · University of Haifa**
+**PROJECT IN MACHINE LEARNING · University of Haifa**
 
 *An experimental machine learning study of imbalanced fraud detection, temporal generalization, and resource-constrained decision-making.*
 
@@ -314,7 +314,7 @@ fix: prevent preprocessing data leakage
 
 ## Academic Context
 
-This repository was created as part of the **Machine Learning Lab** at the University of Haifa.
+This repository was created as part of the **PROJECT IN MACHINE LEARNING 26/2027** at the University of Haifa.
 
 The project emphasizes independent learning, mathematical and theoretical understanding, experimental investigation, and scientific communication.
 
@@ -326,13 +326,13 @@ All implementations, analyses, and conclusions will be developed in accordance w
 B.Sc. Data Science & Information Systems  
 University of Haifa
 
-**Project Partner**  
+**Natalie Mosleh**  
 B.Sc. Computer Science  
 University of Haifa
 
 ## Acknowledgments
 
-University of Haifa — Machine Learning Lab course staff.
+University of Haifa — PROJECT IN MACHINE LEARNING staff.
 
 BAF dataset authors and contributors.
 
