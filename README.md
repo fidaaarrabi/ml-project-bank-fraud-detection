@@ -1,324 +1,207 @@
 # Bank Account Fraud Detection
 
-**PROJECT IN MACHINE LEARNING · University of Haifa**
+**PROJECT IN MACHINE LEARNING 2026/2027 · University of Haifa**
 
-*An experimental machine learning study of imbalanced fraud detection, temporal generalization, and resource-constrained decision-making.*
+*An experimental study of rare-event classification, nonlinear fraud detection, and decisions under a limited investigation budget.*
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-ML-F7931E?logo=scikitlearn&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Planning-blue)
 ![Project](https://img.shields.io/badge/Academic-ML%20Lab-64748B)
-
----
+![Submission deadline](https://img.shields.io/badge/Final%20Submission-31%20Jan%202027-64748B)
 
 ## Overview
 
-Fraud detection is a challenging machine learning problem because fraudulent applications represent a small fraction of overall activity, fraud patterns may change over time, and investigation resources are limited.
+This project investigates how to detect fraudulent bank-account applications when fraud is rare, models may behave differently across months, and investigators can review only a limited share of applications.
 
-A model that achieves high classification accuracy may still fail to identify meaningful fraudulent activity. Likewise, a model that performs well on historical data may deteriorate when evaluated on future applications.
+We use the **Bank Account Fraud (BAF) dataset, Base version**, described by Jesus et al. (NeurIPS 2022). The dataset contains approximately one million synthetic applications across eight months, with about 1% labeled as fraud.
 
-This project investigates these challenges using the **Bank Account Fraud (BAF) dataset**, introduced in the NeurIPS 2022 research literature.
+The project follows **three prescribed stages**. Each stage includes self-learning questions, evidence-driven experiments, a reproducible implementation, and a written interpretation. The goal is to explain *why* results change, not merely report the best score.
 
-Our goal is not simply to maximize predictive accuracy, but to understand how different machine learning approaches behave under realistic operational constraints.
+## Research Stages
 
-The project emphasizes rigorous experimentation, theoretical understanding, reproducibility, and critical analysis of model limitations.
+### Stage 1 — Rare Fraud: Logistic Regression
 
-## Research Objectives
+**Question:** When approximately 1% of applications are fraudulent, how should we evaluate detection, and how well does logistic regression perform?
 
-The study is organized around three central research directions.
+- Establish the **never-predict-fraud** baseline to demonstrate why accuracy can be misleading.
+- Train logistic regression with and without `class_weight="balanced"`.
+- Compare precision–recall curves, average precision, score distributions, and **recall at 5% false-positive rate (FPR)**.
+- Report threshold trade-offs: precision, recall, and flagged applications per 1,000.
+- Explain whether class weighting changes the ranking or mainly the scores.
 
-### 01 — Imbalanced Fraud Classification
+**Deliverables:** Reproducible code, required comparison table and figures, answers to self-check questions, Stage 1 report, and AI-use disclosure.
 
-Investigate how class imbalance influences model learning, predictions, and evaluation.
+### Stage 2 — Nonlinear Fraud Detection: Random Forest
 
-**Research questions:**
+**Question:** Does a random forest catch more fraud than logistic regression, and do improvements come from individual features or interactions?
 
-- How do baseline classification models compare with ensemble and boosting approaches?
-- Which evaluation metrics provide the most meaningful assessment of rare-event detection?
-- How do different modeling choices affect the trade-off between precision and recall?
+- Compare random forest with the best Stage 1 logistic regression model using the **same split and metrics**.
+- Test tree depths **1, 2, 4, 8, and unlimited**.
+- Compare minimum leaf sizes (**1, 10, 50**) with and without `class_weight="balanced_subsample"`.
+- Interpret how depth, feature interactions, rare fraud cases, and class weights affect results.
 
-**Planned methodology:**
+**Deliverables:** Reproducible experiments, precision–recall and depth-comparison figures, results table for forest settings, self-check answers, Stage 2 report, and AI-use disclosure.
 
-Establish reproducible baselines, train selected classical machine learning models, and evaluate their performance using appropriate classification metrics.
+### Stage 3 — Later Months and Limited Review Budgets
 
-### 02 — Temporal Generalization
+**Question:** When investigators can review only a fixed share of applications, which model and decision rule catch the most fraud in later months?
 
-Examine how well fraud detection models generalize to observations from later time periods.
+- **Freeze model choices and thresholds before examining final test months 6 and 7.**
+- Compare the selected logistic regression and random forest models across months 5, 6, and 7.
+- Apply a **fixed threshold selected on validation month 5** to later months.
+- Compare that policy with reviewing the **top 1% and top 5%** of monthly application scores.
+- Report flagged counts, precision, recall, and an evidence-based operational recommendation.
 
-**Research questions:**
-
-- Does predictive performance change when evaluation moves from random splits to chronological splits?
-- How sensitive are different models to temporal changes in the data?
-- Which features and model behaviors are associated with performance deterioration?
-
-**Planned methodology:**
-
-Compare suitable validation strategies, evaluate models across time-based partitions, and investigate changes in predictive performance.
-
-### 03 — Resource-Constrained Fraud Detection
-
-Study fraud detection as a decision-making problem under limited investigation capacity.
-
-**Research questions:**
-
-- How should suspicious applications be prioritized when only a limited number can be reviewed?
-- What proportion of fraudulent applications can be identified within a fixed investigation budget?
-- How do different models perform when evaluated using operational rather than purely statistical criteria?
-
-**Planned methodology:**
-
-Rank applications by predicted risk, simulate limited review capacity, and analyze detection performance at different operational thresholds.
-
-*These research directions are preliminary and will be aligned with the official three-stage project instructions.*
-
----
+**Deliverables:** Reproducible temporal and budget evaluations, required month-by-month comparison table, Stage 3 report, self-check answers, and AI-use disclosure.
 
 ## Dataset
 
-**Bank Account Fraud (BAF)**
+- **Source:** [Bank Account Fraud Dataset — NeurIPS 2022 (Kaggle)](https://www.kaggle.com/datasets/sgpjesus/bank-account-fraud-dataset-neurips-2022)
+- **Official documentation and datasheet:** [Feedzai BAF repository](https://github.com/feedzai/bank-account-fraud)
+- **File:** `Base.csv` only; other variants are outside the assignment scope.
+- **Target:** `is_fraud` (`1` means fraud).
+- **Time variable:** `month` (months 0–7).
 
-The BAF dataset is a research benchmark designed to support investigation of fraud detection challenges, including class imbalance, model generalization, and responsible evaluation.
+The data are synthetic, designed to resemble an anonymized real banking dataset; they do not contain real customers.
 
-**Reference:**
+### Mandatory Chronological Split
 
-Jesus et al. (2022). *Turning the Tables: Biased, Imbalanced, Dynamic Tabular Datasets for ML Evaluation.* NeurIPS 2022.
+| Partition | Months | Purpose |
+|---|---|---|
+| Training | 0–4 | Fit preprocessing and models |
+| Validation | 5 | Compare models and select thresholds |
+| Final test | 6–7 | Stage 3 evaluation only |
 
-Official dataset repository:
+**Data leakage rule:** Do not use months 6–7 to choose models, hyperparameters, preprocessing decisions, or thresholds.
 
-https://github.com/feedzai/bank-account-fraud
+### Required Preprocessing
 
-### Data Handling Principles
+1. Remove `month` from model inputs (retain it for partitioning).
+2. Check whether `device_fraud_count` is constant; exclude it as instructed.
+3. One-hot encode `payment_type`, `employment_status`, `housing_status`, `source`, and `device_os`.
+4. Identify negative missing-value codes using the official datasheet and **retain them as specified**.
+5. Standardize numeric features for logistic regression, fitting the scaler on **training months only**.
+6. If random forest training is too slow, the assignment permits using a random **30% of training applications**; document any sampling and its effect.
 
-- Preserve the integrity of the original dataset.
-- Keep raw datasets separate from processed artifacts.
-- Prevent data leakage between training and evaluation partitions.
-- Apply learned preprocessing transformations using training data only.
-- Document all data transformations and experimental assumptions.
-- Avoid committing large datasets or generated artifacts unless explicitly required.
+Raw data should not be committed to the repository. Dataset acquisition and local paths will be documented when implementation begins.
 
-Dataset access and preprocessing instructions will be documented as implementation progresses.
+## Evaluation Protocol
 
----
+The **primary metric** throughout the project is **recall at 5% false-positive rate**: the share of fraudulent applications caught when approximately 5% of legitimate applications are flagged. Precision–recall curves and average precision accompany this metric.
 
-## Methodology
+Additional required outputs include:
 
-The experimental workflow will follow a reproducible machine learning process.
+- Stage 1: accuracy for the never-fraud baseline and comparison models; threshold table; precision at 5% FPR.
+- Stage 2: average precision and recall at 5% FPR for each forest configuration.
+- Stage 3: fraud rate and recall at 5% FPR by month; flagged application counts, precision, and recall for fixed-threshold and top-K rules at 1% and 5% budgets.
 
-**Data Acquisition → Data Validation → Exploratory Analysis → Preprocessing → Model Training → Evaluation → Error Analysis → Reporting**
+The exact threshold-selection and tie-handling conventions will be documented in the implementation to make results reproducible.
 
-### Model Development
+## Scientific and Academic Integrity
 
-Candidate approaches include:
-
-- Simple baseline classifiers
-- Logistic Regression
-- Random Forest
-- Gradient Boosting
-
-Final model selection will depend on the official project requirements and experimental findings.
-
-### Evaluation Strategy
-
-Depending on the research stage, evaluation may include:
-
-| Evaluation area | Candidate metrics |
-|---|---|
-| Classification | Precision, Recall, F1-score |
-| Imbalanced prediction | PR-AUC, ROC-AUC |
-| Temporal generalization | Performance across chronological partitions |
-| Investigation capacity | Precision@k, Recall@k, fraud capture rate |
-| Model reliability | Error analysis and performance stability |
-
-Metrics will be selected according to the relevant research question rather than reported indiscriminately.
-
-### Experimental Integrity
-
-To support valid comparisons, the project aims to maintain:
-
-1. Consistent data partitions across comparable experiments.
-2. Fixed random seeds where applicable.
-3. Explicitly documented preprocessing and model configurations.
-4. Separation between training, validation, and final evaluation data.
-5. Reproducible evaluation procedures.
-6. Clear documentation of limitations and negative findings.
-
----
+- **Predict before running:** Record the expected result and rationale for every experiment, then compare with the observed outcome.
+- **Report negative results:** Include unsuccessful configurations and explain what they reveal.
+- **Reproduce results:** Use fixed random seeds and provide one notebook or script that recreates every submitted figure and table.
+- **Compare fairly:** Use the prescribed partitions and consistent metrics across stages.
+- **Use only allowed models:** Logistic regression (Stage 1) and random forest (Stage 2), with their selected variants in Stage 3. No additional model families are planned.
+- **Own the interpretation:** AI assistants may help write or debug code, but the analysis, interpretation, and written answers must be the students' own work.
+- **Disclose AI use:** End each stage report with a short, specific AI-use note.
+- **Prepare for oral checks:** Both contributors should understand every submitted line of code and the mathematical reasoning behind it.
 
 ## Technical Stack
 
-| Area | Planned tools |
+| Purpose | Planned tools |
 |---|---|
-| Language | Python |
-| Data processing | pandas, NumPy |
-| Machine learning | scikit-learn |
+| Programming | Python 3.11+ |
+| Data manipulation | pandas, NumPy |
+| Modeling and metrics | scikit-learn |
 | Visualization | Matplotlib, Seaborn |
-| Experimentation | Jupyter Notebook |
-| Testing | pytest |
-| Version control | Git, GitHub |
+| Experiments | Jupyter notebooks and/or Python scripts |
+| Tests | pytest |
+| Collaboration | Git, GitHub Issues, pull requests |
 
-Additional dependencies will be introduced only when justified by the experimental requirements.
-
----
+These are planned tools, not a claim that the dependencies or code have already been installed.
 
 ## Repository Architecture
 
+The existing repository will be audited before adopting or changing a directory layout. Proposed organization (not yet implemented):
+
 ```text
-ml-lab-bank-fraud-detection/
-│
+ml-project-bank-fraud-detection/
 ├── data/
 │   └── README.md
-│
 ├── notebooks/
-│   └── 01_exploratory_analysis.ipynb
-│
 ├── src/
-│   ├── __init__.py
 │   ├── data_loading.py
 │   ├── preprocessing.py
 │   ├── models.py
 │   └── evaluation.py
-│
+├── experiments/
 ├── results/
 │   ├── figures/
 │   └── metrics/
-│
 ├── reports/
 │   ├── stage_1/
 │   ├── stage_2/
 │   └── stage_3/
-│
 ├── tests/
-│
+├── docs/
+│   └── progress/
 ├── requirements.txt
 ├── .gitignore
 └── README.md
 ```
 
-*The structure represents the intended repository organization. Components will be introduced incrementally.*
-
----
-
 ## Getting Started
 
-### Prerequisites
-
-- Python 3.11 or later
-- Git
-- A Python virtual environment
-- Access to the BAF dataset
-
-### Clone the Repository
+Clone the existing repository:
 
 ```bash
-git clone https://github.com/<your-username>/ml-lab-bank-fraud-detection.git
-cd ml-lab-bank-fraud-detection
+git clone https://github.com/fidaaarrabi/ml-project-bank-fraud-detection.git
+cd ml-project-bank-fraud-detection
 ```
 
-Replace `<your-username>` with the actual repository owner.
+**Environment setup and dataset-loading commands will be added after the project structure and dependencies are implemented and verified.**
 
-### Create a Virtual Environment
+## Semester Roadmap
 
-**Windows (PowerShell):**
+**Project start:** November 1, 2026. **Confirmed final submission deadline:** January 31, 2027. The dates below are our internal working plan, not official intermediate deadlines.
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-```
-
-**macOS / Linux:**
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-### Install Dependencies
-
-```bash
-python -m pip install -r requirements.txt
-```
-
-The dependency file and executable workflows will be finalized during initial development.
-
----
-
-## Project Roadmap
-
-| Phase | Milestone | Status |
+| Dates | Phase | Main evidence |
 |---|---|---|
-| 00 | Project declaration and repository initialization | Planned |
-| 01 | Dataset investigation and theoretical foundations | Planned |
-| 02 | Baseline modeling and imbalanced classification experiments | Planned |
-| 03 | Temporal generalization experiments | Planned |
-| 04 | Investigation-capacity analysis | Planned |
-| 05 | Final experimental analysis and reproducibility review | Planned |
-| 06 | Final report and presentation | Planned |
+| Nov 1–9, 2026 | **Project foundation:** scope, repository planning, dataset documentation, and initial setup | README, project plan, dataset notes; completion to be confirmed |
+| Nov 10–23, 2026 | **Stage 1 — Rare fraud detection:** baseline, unweighted and weighted logistic regression, PR curves, recall at 5% FPR, predictions and report | Reproducible experiments, comparison table, Stage 1 report |
+| Nov 24–Dec 20, 2026 | **Stage 2 — Random forest:** depth and leaf-size experiments, class weighting, comparison with logistic regression | Depth plot, PR curves, model comparison, Stage 2 report |
+| Dec 21, 2026–Jan 17, 2027 | **Stage 3 — Later months and review budgets:** fixed thresholds, top-1% and top-5% review budgets, operational recommendation | Month-by-month tables, budget analysis, Stage 3 report |
+| Jan 18–31, 2027 | **Final integration and submission:** reproducibility checks, combined report and documentation | Final report, runnable code, validated figures and tables |
 
-The roadmap will be updated to reflect the official academic milestones.
-
----
+**Scheduling note:** Project foundation is targeted for completion by November 9; completion should be confirmed by both contributors. Stage 1 is planned for November 10–23. Later dates are provisional and can be adjusted without changing the January 31 submission deadline.
 
 ## Results and Findings
 
-**Status: Experiments not yet conducted.**
-
-Experimental results will be published after implementation and validation.
-
-Future documentation will include:
-
-- Baseline performance comparisons
-- Model evaluation tables
-- Relevant visualizations
-- Temporal performance analysis
-- Operational decision trade-offs
-- Interpretation of results and limitations
-
-All reported findings will be supported by reproducible experiments.
-
----
+**Status: Planning — no experimental results are reported yet.** Findings will be added only after experiments have been run and validated.
 
 ## Collaboration and Development Practices
 
-The repository is maintained collaboratively by two students.
+The project is developed collaboratively by two students. Proposed workflow:
 
-### Branching Strategy
+- `main`: stable, reviewed work.
+- `feature/*`, `docs/*`, `fix/*`: focused branches.
+- Issues describe the goal and acceptance criteria; pull requests link to issues and explain changes.
+- Both students contribute to implementation, evaluation, documentation, and peer review.
+- Progress updates should document actual work, decisions, difficulties, and next steps—not artificial commit activity.
+- No changes to this repository are made through ChatGPT without explicit user approval.
 
-- `main` — reviewed, stable project state
-- `feature/*` — feature development and experiments
-- `docs/*` — documentation improvements
-- `fix/*` — corrections and bug fixes
+## References
 
-### Contribution Guidelines
-
-Contributions should follow these principles:
-
-- Keep commits focused and descriptive.
-- Use pull requests for substantial changes.
-- Review code and experimental assumptions before merging.
-- Document significant design decisions.
-- Avoid committing temporary files, virtual environments, credentials, or unnecessary datasets.
-- Ensure that both contributors understand the theoretical and experimental aspects of the project.
-
-### Commit Naming Examples
-
-```text
-docs: document research objectives
-chore: initialize project structure
-feat: implement baseline classifier
-test: add preprocessing validation
-exp: compare temporal evaluation strategies
-fix: prevent preprocessing data leakage
-```
-
----
+1. Jesus et al. (2022), *Turning the Tables: Biased, Imbalanced, Dynamic Tabular Datasets for ML Evaluation*. [arXiv:2211.13358](https://arxiv.org/abs/2211.13358).
+2. James, Witten, Hastie, Tibshirani & Taylor (2023), *An Introduction to Statistical Learning with Applications in Python* (ISLP). [statlearning.com](https://www.statlearning.com/).
+3. [scikit-learn User Guide](https://scikit-learn.org/stable/user_guide.html).
 
 ## Academic Context
 
-This repository was created as part of the **PROJECT IN MACHINE LEARNING 26/2027** at the University of Haifa.
-
-The project emphasizes independent learning, mathematical and theoretical understanding, experimental investigation, and scientific communication.
-
-All implementations, analyses, and conclusions will be developed in accordance with the course requirements and academic integrity guidelines.
+**PROJECT IN MACHINE LEARNING 2026/2027** · University of Haifa.
 
 ## Authors
 
@@ -335,7 +218,3 @@ University of Haifa
 University of Haifa — PROJECT IN MACHINE LEARNING staff.
 
 BAF dataset authors and contributors.
-
----
-
-**Project Status:** Planning and repository initialization.
