@@ -218,3 +218,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Bank fraud project: local datasets and saved models
+/data/raw/
+/data/processed/
+*.joblib
+*.pkl
